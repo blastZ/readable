@@ -1,4 +1,4 @@
-import { GET_ALL_POSTS } from '../actions/posts_action';
+import { SET_POSTS } from '../actions/posts_action';
 
 const initState = {
     posts: []
@@ -7,10 +7,10 @@ const initState = {
 function postsReducer(state=initState, action) {
     const { posts } = action;
     switch (action.type) {
-        case GET_ALL_POSTS: {
+        case SET_POSTS: {
             return {
                 ...state,
-                posts: posts
+                posts
             }
         }
         default: return state;

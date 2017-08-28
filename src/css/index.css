@@ -1,0 +1,42 @@
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  height: 100%;
+  width: 100%;
+}
+
+.app-delete-button {
+    color: orange;
+    font-size: 30px;
+}
+
+.app-delete-button:hover {
+    cursor: pointer;
+    color: black;
+}
+
+.full-height {
+    height: 100% !important;
+}
+
+.flex-box {
+    display: flex;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.addPostButton {
+    color: green !important;
+    font-size: 3em !important;
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+}
+
+.addPostButton:hover {
+    cursor: pointer;
+    color: black !important;
+}
