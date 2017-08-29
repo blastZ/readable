@@ -16,9 +16,13 @@ class NewPostView extends Component {
     }
 
     addNewPost = () => {
-        this.state.post.timestamp = Date.now();
-        this.state.id = Math.floor((1 + Math.random()) * 0x100000000000000000000).toString(16).substring(1);
-        this.props.addNewPost(this.state.post);
+        const post = this.state.post;
+        post.timestamp = Date.now();
+        post.id = Math.floor((1 + Math.random()) * 0x10000000000000).toString(16).substring(1);
+        if(post.category === '') {
+            post.category = this.props.categories[0].name;
+        }
+        this.props.addNewPost(post);
     }
 
     handlePostTitle = (e) => {

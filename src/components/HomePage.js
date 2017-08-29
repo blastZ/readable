@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import FireIcon from 'react-icons/lib/fa/star-o';
+import { Link } from 'react-router-dom';
 
 class HomePage extends Component {
     componentDidMount() {
@@ -15,22 +17,29 @@ class HomePage extends Component {
         const hour = date.getHours();
         const minute = date.getMinutes();
         const second = date.getSeconds();
-        return `${hour}:${minute < 10 ? `0${minute}` : minute}:${second}`;
+        return `${hour}:${minute < 10 ? `0${minute}` : minute}`;
     }
 
     render() {
         return (
-            <div className="w3-padding-16 w3-container">{
+            <div className="w3-container" style={{paddingTop: '90px'}}>{
                 this.props.orderMethod === 'vote-score' ?
                     this.props.orderPosts(this.props.posts, 'vote-score').map((post, index) => (
                         <div key={post.id + index}>
-                            <h3>{`${this.getFormatTime(post.timestamp)} ${post.title}`}</h3>
+                            <h3 className="flex-box" style={{alignItems: 'center'}}>
+                                {`${this.getFormatTime(post.timestamp)}`}
+                                <Link to={`/p/${post.id}`} className="post-link">{post.title}</Link>
+                                <FireIcon style={{marginLeft: '8px'}}/>{post.voteScore}
+                            </h3>
                             <h4>{post.author}</h4>
                         </div>
                     )):
                     this.props.orderPosts(this.props.posts, 'timestamp').map((post, index) => (
                         <div key={post.id + index}>
-                            <h3>{`${this.getFormatTime(post.timestamp)} ${post.title}`}</h3>
+                            <h3>
+                                {`${this.getFormatTime(post.timestamp)}`}
+                                <Link to={`/p/${post.id}`} className="post-link">{post.title}</Link>
+                            </h3>
                             <h4>{post.author}</h4>
                         </div>
                     ))

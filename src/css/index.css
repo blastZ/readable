@@ -40,3 +40,43 @@ body, html, #root {
     cursor: pointer;
     color: black !important;
 }
+
+.w3-modal {
+    animation-name: popups;
+    animation-duration: 800ms;
+    animation-timing-function: linear;
+}
+
+@keyframes popups {
+    0% {
+        opacity: 0.1;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.post-link {
+    text-decoration: none;
+    padding: 0px 10px;
+}
+
+.post-link:hover {
+    color: #00A1E4 !important;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.margin-left {
+    margin-left: 10px;
+}
+
+.hoverable:hover {
+    cursor: pointer !important;
+}
+
+.center-button {
+    display: flex;
+    justify-content: center;
+}
