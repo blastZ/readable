@@ -47,6 +47,12 @@ body, html, #root {
     animation-timing-function: linear;
 }
 
+.drop-down {
+    animation-name: popups;
+    animation-duration: 800ms;
+    animation-timing-function: ease;
+}
+
 @keyframes popups {
     0% {
         opacity: 0.1;
@@ -79,4 +85,69 @@ body, html, #root {
 .center-button {
     display: flex;
     justify-content: center;
+}
+
+.load-page-right {
+    animation-name: loadPageRight;
+    animation-duration: 300ms;
+    animation-timing-function: ease;
+}
+
+.load-page-left {
+    animation-name: loadPageLeft;
+    animation-duration: 300ms;
+    animation-timing-function: ease;
+}
+
+.load-top-bar {
+    animation-name: loadtopbar;
+    animation-duration: 300ms;
+    animation-timing-function: linear;
+}
+
+@keyframes loadPageRight {
+    0% {
+        opacity: 0.1;
+        transform: translateX(100%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0%);
+    }
+}
+
+@keyframes loadPageLeft {
+    0% {
+        opacity: 0.1;
+        transform: translateX(-100%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0%);
+    }
+}
+
+@keyframes  loadtopbar {
+    0% {
+        opacity: 0.1;
+        transform: translateY(-100%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0%);
+    }
+}
+
+.drop-down-icon {
+    border-left: 2px solid orange;
+    padding-left: 5px;
+    margin-top: 4px;
+}
+
+.drop-down-icon:hover {
+    cursor: pointer;
+    color: orange !important;
 }

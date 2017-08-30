@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { shouldShowNewCommentView } from '../../actions/app_action';
 
 class NewCommentView extends Component {
     state = {
@@ -60,4 +61,8 @@ const mapStateToProps = ({ postsReducer }) => ({
     post: postsReducer.post
 })
 
-export default connect(mapStateToProps)(NewCommentView);
+const mapDispatchToProps = ((dispatch) => ({
+    shouldShowNewCommentView: () => dispatch(shouldShowNewCommentView())
+}))
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewCommentView);

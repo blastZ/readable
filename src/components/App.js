@@ -11,57 +11,32 @@ import '../css/index.css';
 import NewPostView from './popups/NewPostView';
 import NewCommentView from './popups/NewCommentView';
 import EditPostView from './popups/EditPostView';
+import EditCommentView from './popups/EditCommentView';
 import { Route } from 'react-router-dom';
 import PostPage from './PostPage';
+import { shouldShowNewPostView, shouldShowNewCommentView, shouldShowEditPostView, shouldShowEditCommentView } from '../actions/app_action';
 
 class App extends Component {
-    state = {
-        headers: {
-            'Authorization': 'Basic'
-        },
-        postHeaders: {
-            'Authorization': 'Basic',
-            'Content-Type': 'application/json'
-        },
-        defaultURL: 'http://localhost:5001/',
-        orderMethod: 'vote-score',
-        showNewPostView: false,
-        showNewCommentView: false,
-        showEditPostView: false
-    }
-
-    shouldShowEditPostView = () => {
-        this.setState({showEditPostView: !this.state.showEditPostView});
-    }
-
-    shouldShowNewPostView = () => {
-        this.setState({showNewPostView: !this.state.showNewPostView});
-    }
-
-    shouldShowNewCommentView = () => {
-        this.setState({showNewCommentView: !this.state.showNewCommentView});
-    }
-
     fetchPosts = (category) => {
-        const { headers, defaultURL } = this.state;
+        const { headers, defaultURL } = this.props;
         const { setPosts } = this.props;
         if(category === 'all') {
             fetch(`${defaultURL}posts`, { headers }).then((response) => (
                 response.json()
             )).then((data) => {
-                setPosts(this.orderPosts(data, this.state.orderMethod));
+                setPosts(this.orderPosts(data, this.props.postsOrderMethod));
             })
         } else {
             fetch(`${defaultURL}${category}/posts`, { headers }).then((response) => (
                 response.json()
             )).then((data) => {
-                setPosts(this.orderPosts(data, this.state.orderMethod));
+                setPosts(this.orderPosts(data, this.props.postsOrderMethod));
             })
         }
     }
 
     fetchCategories = () => {
-        const { headers, defaultURL } = this.state;
+        const { headers, defaultURL } = this.props;
         const { setCategories } = this.props;
         fetch(`${defaultURL}categories`, { headers }).then((response) => (
             response.json()
@@ -71,7 +46,7 @@ class App extends Component {
     }
 
     fetchPostDetails = (id) => {
-        const { headers, defaultURL } = this.state;
+        const { headers, defaultURL } = this.props;
         fetch(`${defaultURL}posts/${id}`, { headers }).then((response) => (
             response.json()
         )).then((data) => {
@@ -80,11 +55,56 @@ class App extends Component {
     }
 
     fetchComments = (id) => {
-        const { headers, defaultURL } = this.state;
+        const { headers, defaultURL } = this.props;
         fetch(`${defaultURL}posts/${id}/comments`, { headers }).then((response) => (
             response.json()
         )).then((data) => {
             this.props.setComments(data);
+        })
+    }
+
+    fetchPostChange = (id, post) => {
+        this.props.shouldShowEditPostView();
+        const { postHeaders, defaultURL } = this.props;
+        fetch(`${defaultURL}posts/${id}`, {
+            headers: postHeaders,
+            method: 'PUT',
+            body: JSON.stringify(post)
+        }).then((response) => {
+            this.fetchPostDetails(id);
+        })
+    }
+
+    fetchCommentChange = (id, comment) => {
+        this.props.shouldShowEditCommentView();
+        const {postHeaders, defaultURL } = this.props;
+        fetch(`${defaultURL}comments/${id}`, {
+            headers: postHeaders,
+            method: 'PUT',
+            body: JSON.stringify(comment)
+        }).then((response) => {
+            this.fetchComments(this.props.post.id);
+        })
+    }
+
+    fetchDeletePost = (id) => {
+        const { headers, defaultURL } = this.props;
+        fetch(`${defaultURL}posts/${id}`, {
+            headers,
+            method: 'DELETE'
+        }).then((response) => {
+            this.props.history.push('/');
+        })
+    }
+
+    fetchDeleteComment = (id) => {
+        const { headers, defaultURL } = this.props;
+        fetch(`${defaultURL}comments/${id}`, {
+            headers,
+            method: 'DELETE'
+        }).then((response) => {
+            if(response.status === 200)
+                this.fetchComments(this.props.post.id);
         })
     }
 
@@ -114,13 +134,9 @@ class App extends Component {
         }
     }
 
-    handleOrderMethodChange = (e) => {
-        this.setState({orderMethod: e.target.value});
-    }
-
     addNewPost = (post) => {
-        this.shouldShowNewPostView();
-        const { postHeaders, defaultURL } = this.state;
+        this.props.shouldShowNewPostView();
+        const { postHeaders, defaultURL } = this.props;
         fetch(`${defaultURL}posts`, {
             headers: postHeaders,
             method: 'POST',
@@ -133,8 +149,8 @@ class App extends Component {
     }
 
     addNewComment = (comment) => {
-        this.shouldShowNewCommentView();
-        const { postHeaders, defaultURL } = this.state;
+        this.props.shouldShowNewCommentView();
+        const { postHeaders, defaultURL } = this.props;
         fetch(`${defaultURL}comments`, {
             headers: postHeaders,
             method: 'POST',
@@ -147,7 +163,7 @@ class App extends Component {
     }
 
     changeCommentVoteScore = (id, voteMethod) => {
-        const { postHeaders, defaultURL } = this.state;
+        const { postHeaders, defaultURL } = this.props;
         fetch(`${defaultURL}comments/${id}`, {
             headers: postHeaders,
             method: 'POST',
@@ -162,7 +178,7 @@ class App extends Component {
     }
 
     changePostVoteScore = (id, voteMethod) => {
-        const { postHeaders, defaultURL } = this.state;
+        const { postHeaders, defaultURL } = this.props;
         fetch(`${defaultURL}posts/${id}`, {
             headers: postHeaders,
             method: 'POST',
@@ -182,39 +198,39 @@ class App extends Component {
                 <Route exact path="/" render={() => (
                     <div className="full-height">
                         <TopBar fetchCategories={this.fetchCategories}
-                                fetchPosts={this.fetchPosts}
-                                orderMethod={this.state.orderMethod}
-                                handleOrderMethodChange={this.handleOrderMethodChange}/>
+                                fetchPosts={this.fetchPosts}/>
                         <HomePage fetchCategories={this.fetchCategories}
                                   fetchPosts={this.fetchPosts}
-                                  orderPosts={this.orderPosts}
-                                  orderMethod={this.state.orderMethod}/>
-                        <AddPostIcon onClick={this.shouldShowNewPostView} className="addPostButton"/>
+                                  orderPosts={this.orderPosts}/>
+                        <AddPostIcon onClick={this.props.shouldShowNewPostView} className="addPostButton"/>
                         {
-                            this.state.showNewPostView ?
-                            <NewPostView shouldShowNewPostView={this.shouldShowNewPostView}
-                                         addNewPost={this.addNewPost}/>
+                            this.props.popupsState.showNewPostView ?
+                            <NewPostView addNewPost={this.addNewPost}/>
                             : null
                         }
                     </div>
                 )}/>
                 <Route exact path="/p/:postID" render={() => (
                     <div className="full-height">
-                        <TopBar shouldShowEditPostView={this.shouldShowEditPostView}/>
+                        <TopBar deletePost={this.fetchDeletePost}/>
                         <PostPage fetchPostDetails={this.fetchPostDetails}
                                   fetchComments={this.fetchComments}
-                                  shouldShowNewCommentView={this.shouldShowNewCommentView}
+                                  fetchDeleteComment={this.fetchDeleteComment}
                                   changeCommentVoteScore={this.changeCommentVoteScore}
                                   changePostVoteScore={this.changePostVoteScore}/>
                         {
-                            this.state.showNewCommentView ?
-                            <NewCommentView shouldShowNewCommentView={this.shouldShowNewCommentView}
-                                            addNewComment={this.addNewComment}/>
+                            this.props.popupsState.showNewCommentView ?
+                            <NewCommentView addNewComment={this.addNewComment}/>
                             : null
                         }
                         {
-                            this.state.showEditPostView ?
-                            <EditPostView shouldShowEditPostView={this.shouldShowEditPostView}/>
+                            this.props.popupsState.showEditPostView ?
+                            <EditPostView fetchPostChange={this.fetchPostChange}/>
+                            : null
+                        }
+                        {
+                            this.props.popupsState.showEditCommentView ?
+                            <EditCommentView fetchCommentChange={this.fetchCommentChange}/>
                             : null
                         }
                     </div>
@@ -224,16 +240,27 @@ class App extends Component {
     }
 }
 
-const mapStateToProps = ({ postsReducer }) => ({
+const mapStateToProps = ({ appReducer, postsReducer, commentsReducer }) => ({
+    defaultURL: appReducer.fetchOptions.defaultURL,
+    headers: appReducer.fetchOptions.headers,
+    postHeaders: appReducer.fetchOptions.postHeaders,
     posts: postsReducer.posts,
-    post: postsReducer.post
+    post: postsReducer.post,
+    comments: commentsReducer.comments,
+    comment: commentsReducer.comment,
+    popupsState: appReducer.popupsState,
+    postsOrderMethod: appReducer.postsOrderMethod
 })
 
 const mapDispatchToProps = (dispatch) => ({
     setPosts: (posts) => dispatch(setPosts(posts)),
     setPost: (post) => dispatch(setPost(post)),
     setCategories: (categories) => dispatch(setCategories(categories)),
-    setComments: (comments) => dispatch(setComments(comments))
+    setComments: (comments) => dispatch(setComments(comments)),
+    shouldShowNewPostView: () => dispatch(shouldShowNewPostView()),
+    shouldShowNewCommentView: () => dispatch(shouldShowNewCommentView()),
+    shouldShowEditPostView: () => dispatch(shouldShowEditPostView()),
+    shouldShowEditCommentView: () => dispatch(shouldShowEditCommentView())
 })
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));

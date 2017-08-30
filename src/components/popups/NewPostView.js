@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { shouldShowNewPostView } from '../../actions/app_action';
 
 class NewPostView extends Component {
     state = {
@@ -91,4 +92,8 @@ const mapStateToProps = ({ categoriesReducer }) => ({
     categories: categoriesReducer.categories
 })
 
-export default connect(mapStateToProps)(NewPostView);
+const mapDispatchToProps = (dispatch) => ({
+    shouldShowNewPostView: () => dispatch(shouldShowNewPostView())
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewPostView);

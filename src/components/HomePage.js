@@ -22,8 +22,8 @@ class HomePage extends Component {
 
     render() {
         return (
-            <div className="w3-container" style={{paddingTop: '90px'}}>{
-                this.props.orderMethod === 'vote-score' ?
+            <div className="load-page-left w3-container" style={{paddingTop: '90px'}}>{
+                this.props.postsOrderMethod === 'vote-score' ?
                     this.props.orderPosts(this.props.posts, 'vote-score').map((post, index) => (
                         <div key={post.id + index}>
                             <h3 className="flex-box" style={{alignItems: 'center'}}>
@@ -48,8 +48,9 @@ class HomePage extends Component {
     }
 }
 
-const mapStateToProps = ({ postsReducer }) => ({
-    posts: postsReducer.posts
+const mapStateToProps = ({ postsReducer, appReducer }) => ({
+    posts: postsReducer.posts,
+    postsOrderMethod: appReducer.postsOrderMethod
 })
 
 export default connect(mapStateToProps)(HomePage);

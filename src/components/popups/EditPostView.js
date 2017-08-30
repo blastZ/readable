@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { shouldShowEditPostView } from '../../actions/app_action';
 
 class EditPostView extends Component {
     state = {
@@ -20,7 +21,7 @@ class EditPostView extends Component {
 
     editPost = () => {
         const post = this.state.post;
-        this.props.editPost(post);
+        this.props.fetchPostChange(this.props.post.id, post);
     }
 
     handlePostTitle = (e) => {
@@ -63,4 +64,8 @@ const mapStateToProps = ({ postsReducer }) => ({
     post: postsReducer.post
 })
 
-export default connect(mapStateToProps)(EditPostView);
+const mapDispatchToProps = ((dispatch) => ({
+    shouldShowEditPostView: () => dispatch(shouldShowEditPostView())
+}))
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditPostView);
