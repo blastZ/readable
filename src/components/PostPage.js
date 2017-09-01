@@ -7,19 +7,11 @@ import DownIcon from 'react-icons/lib/fa/thumbs-o-down';
 import AddCommentIcon from 'react-icons/lib/fa/plus-square';
 import CommentSelectIcon from 'react-icons/lib/fa/ellipsis-h';
 import { setComment } from '../actions/comments_action';
-import { shouldShowNewCommentView, shouldShowEditCommentView } from '../actions/app_action';
+import { shouldShowNewCommentView, shouldShowEditCommentView, shouldShowCommentSelect } from '../actions/app_action';
 
 class PostPage extends Component {
-    state = {
-        showCommentSelect: false,
-        currentCommentIndex: -1
-    }
-
     shouldShowCommentSelect = (index) => {
-        this.setState({
-            showCommentSelect: !this.state.showCommentSelect,
-            currentCommentIndex: index
-        });
+        this.props.shouldShowCommentSelect(index);
     }
 
     shouldShowEditCommentView = (index) => {
@@ -95,7 +87,7 @@ class PostPage extends Component {
                         <div key={comment.id} className="flex-box flex-column">
                             <div className="flex-box" style={{alignItems: 'center', position: 'relative'}}>
                                 {
-                                    this.state.showCommentSelect && this.state.currentCommentIndex === index ?
+                                    this.props.showCommentSelect && this.props.currentCommentIndex === index ?
                                     <div className="drop-down w3-black w3-container" style={{position: 'absolute', right: '25px', bottom: '-73px', paddingTop: '10px', paddingBottom: '10px'}}>
                                         <div style={{width: '0px', height: '0px', position: 'absolute', right: '0px', top: '-8px', borderWidth: '0px 0px 8px 8px', borderStyle: 'solid', borderColor: 'transparent transparent black transparent'}}></div>
                                         <div onClick={this.shouldShowEditCommentView.bind(this, index)} className="drop-down-icon">Edit</div>
@@ -125,16 +117,19 @@ class PostPage extends Component {
     }
 }
 
-const mapStateToProps = ({ postsReducer, commentsReducer }) => ({
+const mapStateToProps = ({ postsReducer, commentsReducer, appReducer }) => ({
     post: postsReducer.post,
     comments: commentsReducer.comments,
-    comment: commentsReducer.comment
+    comment: commentsReducer.comment,
+    showCommentSelect: appReducer.commentOptionState.showCommentSelect,
+    currentCommentIndex: appReducer.commentOptionState.currentCommentIndex
 })
 
 const mapDispatchToProps = ((dispatch) => ({
     setComment: (comment) => dispatch(setComment(comment)),
     shouldShowNewCommentView: () => dispatch(shouldShowNewCommentView()),
-    shouldShowEditCommentView: () => dispatch(shouldShowEditCommentView())
+    shouldShowEditCommentView: () => dispatch(shouldShowEditCommentView()),
+    shouldShowCommentSelect: (currentCommentIndex) => dispatch(shouldShowCommentSelect(currentCommentIndex))
 }))
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PostPage));

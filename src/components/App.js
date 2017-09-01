@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import HomePage from './HomePage';
 import TopBar from './TopBar';
+import NavigationBar from './NavigationBar';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setPosts, setPost } from '../actions/posts_action';
@@ -12,7 +13,7 @@ import NewPostView from './popups/NewPostView';
 import NewCommentView from './popups/NewCommentView';
 import EditPostView from './popups/EditPostView';
 import EditCommentView from './popups/EditCommentView';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import PostPage from './PostPage';
 import { shouldShowNewPostView, shouldShowNewCommentView, shouldShowEditPostView, shouldShowEditCommentView } from '../actions/app_action';
 
@@ -24,13 +25,13 @@ class App extends Component {
             fetch(`${defaultURL}posts`, { headers }).then((response) => (
                 response.json()
             )).then((data) => {
-                setPosts(this.orderPosts(data, this.props.postsOrderMethod));
+                setPosts(data);
             })
         } else {
             fetch(`${defaultURL}${category}/posts`, { headers }).then((response) => (
                 response.json()
             )).then((data) => {
-                setPosts(this.orderPosts(data, this.props.postsOrderMethod));
+                setPosts(data);
             })
         }
     }
@@ -93,7 +94,7 @@ class App extends Component {
             headers,
             method: 'DELETE'
         }).then((response) => {
-            this.props.history.push('/');
+            this.props.history.goBack();
         })
     }
 
@@ -143,9 +144,18 @@ class App extends Component {
             body: JSON.stringify(post)
         }).then((response) => {
             if(response.status === 200) {
-                this.fetchPosts('all');
+                this.fetchPosts(this.getFormatCategory(this.props.location.pathname));
             }
         })
+    }
+
+    getFormatCategory = (str) => {
+        const category = str.split('/')[1];
+        if(category) {
+            return category;
+        } else {
+            return 'all';
+        }
     }
 
     addNewComment = (comment) => {
@@ -187,6 +197,7 @@ class App extends Component {
             })
         }).then((response) => {
             if(response.status === 200) {
+                this.fetchPosts(this.getFormatCategory(this.props.location.pathname));
                 this.fetchPostDetails(id);
             }
         })
@@ -195,46 +206,69 @@ class App extends Component {
     render() {
         return (
             <div className="full-height">
-                <Route exact path="/" render={() => (
-                    <div className="full-height">
-                        <TopBar fetchCategories={this.fetchCategories}
-                                fetchPosts={this.fetchPosts}/>
-                        <HomePage fetchCategories={this.fetchCategories}
-                                  fetchPosts={this.fetchPosts}
-                                  orderPosts={this.orderPosts}/>
-                        <AddPostIcon onClick={this.props.shouldShowNewPostView} className="addPostButton"/>
-                        {
-                            this.props.popupsState.showNewPostView ?
-                            <NewPostView addNewPost={this.addNewPost}/>
-                            : null
-                        }
-                    </div>
-                )}/>
-                <Route exact path="/p/:postID" render={() => (
-                    <div className="full-height">
-                        <TopBar deletePost={this.fetchDeletePost}/>
-                        <PostPage fetchPostDetails={this.fetchPostDetails}
-                                  fetchComments={this.fetchComments}
-                                  fetchDeleteComment={this.fetchDeleteComment}
-                                  changeCommentVoteScore={this.changeCommentVoteScore}
-                                  changePostVoteScore={this.changePostVoteScore}/>
-                        {
-                            this.props.popupsState.showNewCommentView ?
-                            <NewCommentView addNewComment={this.addNewComment}/>
-                            : null
-                        }
-                        {
-                            this.props.popupsState.showEditPostView ?
-                            <EditPostView fetchPostChange={this.fetchPostChange}/>
-                            : null
-                        }
-                        {
-                            this.props.popupsState.showEditCommentView ?
-                            <EditCommentView fetchCommentChange={this.fetchCommentChange}/>
-                            : null
-                        }
-                    </div>
-                )}/>
+                <Switch>
+                    <Route exact path="/" render={() => (
+                        <div className="full-height">
+                            <NavigationBar fetchCategories={this.fetchCategories}
+                                    fetchPosts={this.fetchPosts}/>
+                            <HomePage fetchCategories={this.fetchCategories}
+                                      fetchPosts={this.fetchPosts}
+                                      orderPosts={this.orderPosts}
+                                      getFormatCategory={this.getFormatCategory}
+                                      changeCommentVoteScore={this.changeCommentVoteScore}
+                                      changePostVoteScore={this.changePostVoteScore}/>
+                            <AddPostIcon onClick={this.props.shouldShowNewPostView} className="addPostButton"/>
+                            {
+                                this.props.popupsState.showNewPostView ?
+                                <NewPostView addNewPost={this.addNewPost}/>
+                                : null
+                            }
+                        </div>
+                    )}/>
+                    <Route exact path="/:category" render={() => (
+                        <div className="full-height">
+                            <NavigationBar fetchCategories={this.fetchCategories}
+                                    fetchPosts={this.fetchPosts}/>
+                            <HomePage fetchCategories={this.fetchCategories}
+                                      fetchPosts={this.fetchPosts}
+                                      orderPosts={this.orderPosts}
+                                      getFormatCategory={this.getFormatCategory}
+                                      changeCommentVoteScore={this.changeCommentVoteScore}
+                                      changePostVoteScore={this.changePostVoteScore}/>
+                            <AddPostIcon onClick={this.props.shouldShowNewPostView} className="addPostButton"/>
+                            {
+                                this.props.popupsState.showNewPostView ?
+                                <NewPostView addNewPost={this.addNewPost}/>
+                                : null
+                            }
+                        </div>
+                    )}/>
+                    <Route path="/:category/:postID" render={() => (
+                        <div className="full-height">
+                            <TopBar deletePost={this.fetchDeletePost}/>
+                            <PostPage fetchPostDetails={this.fetchPostDetails}
+                                      fetchComments={this.fetchComments}
+                                      fetchDeleteComment={this.fetchDeleteComment}
+                                      changeCommentVoteScore={this.changeCommentVoteScore}
+                                      changePostVoteScore={this.changePostVoteScore}/>
+                            {
+                                this.props.popupsState.showNewCommentView ?
+                                <NewCommentView addNewComment={this.addNewComment}/>
+                                : null
+                            }
+                            {
+                                this.props.popupsState.showEditPostView ?
+                                <EditPostView fetchPostChange={this.fetchPostChange}/>
+                                : null
+                            }
+                            {
+                                this.props.popupsState.showEditCommentView ?
+                                <EditCommentView fetchCommentChange={this.fetchCommentChange}/>
+                                : null
+                            }
+                        </div>
+                    )}/>
+                </Switch>
             </div>
         )
     }

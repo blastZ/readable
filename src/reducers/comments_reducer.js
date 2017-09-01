@@ -21,7 +21,6 @@ function commentsReducer(state=initState, action) {
             }
         }
         default: return state;
-
     }
 }
 

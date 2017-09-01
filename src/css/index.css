@@ -29,7 +29,7 @@ body, html, #root {
 }
 
 .addPostButton {
-    color: green !important;
+    color: black !important;
     font-size: 3em !important;
     position: fixed;
     bottom: 18px;
@@ -38,7 +38,20 @@ body, html, #root {
 
 .addPostButton:hover {
     cursor: pointer;
+    color: orange !important;
+}
+
+.settingPostButton {
     color: black !important;
+    font-size: 3em !important;
+    position: fixed;
+    bottom: 68px;
+    right: 18px;
+}
+
+.settingPostButton:hover {
+    cursor: pointer;
+    color: orange !important;
 }
 
 .w3-modal {
@@ -65,7 +78,7 @@ body, html, #root {
 
 .post-link {
     text-decoration: none;
-    padding: 0px 10px;
+    padding: 0px;
 }
 
 .post-link:hover {
