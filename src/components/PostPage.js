@@ -59,6 +59,12 @@ class PostPage extends Component {
         this.props.fetchDeleteComment(this.props.comments[index].id);
     }
 
+    componentWillUpdate = (nextProps) => {
+        if(!nextProps.post.body) {
+            this.props.history.push('/error');
+        }
+    }
+
     render() {
         const { post, comments } = this.props;
         return (

@@ -41,6 +41,17 @@ class NewPostView extends Component {
         })
     }
 
+    componentWillUnmount() {
+        this.props.handlePost({
+            author: '',
+            body: '',
+            category: '',
+            id: 0,
+            timestamp: 0,
+            title: ''
+        })
+    }
+
     render() {
         return (
             <div className="w3-modal" style={{display: 'block', background: 'rgba(0, 0, 0, 0.3)'}}>

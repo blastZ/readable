@@ -7,7 +7,6 @@ import DownIcon from 'react-icons/lib/fa/thumbs-o-down';
 
 class HomePage extends Component {
     componentDidMount() {
-        this.props.fetchCategories();
         this.props.fetchPosts(this.props.getFormatCategory(this.props.location.pathname));
     }
 
@@ -34,6 +33,10 @@ class HomePage extends Component {
 
     downPostVoteScore = (id) => {
         this.props.changePostVoteScore(id, 'downVote');
+    }
+
+    componenetWillUpdate() {
+        console.log('I am update');
     }
 
     render() {

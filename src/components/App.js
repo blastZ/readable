@@ -15,9 +15,14 @@ import EditPostView from './popups/EditPostView';
 import EditCommentView from './popups/EditCommentView';
 import { Route, Switch } from 'react-router-dom';
 import PostPage from './PostPage';
+import ErrorPage from './404_page/ErrorPage';
 import { shouldShowNewPostView, shouldShowNewCommentView, shouldShowEditPostView, shouldShowEditCommentView } from '../actions/app_action';
 
 class App extends Component {
+    componentDidMount() {
+        this.fetchCategories();
+    }
+
     fetchPosts = (category) => {
         const { headers, defaultURL } = this.props;
         const { setPosts } = this.props;
@@ -94,7 +99,7 @@ class App extends Component {
             headers,
             method: 'DELETE'
         }).then((response) => {
-            this.props.history.goBack();
+            this.fetchPostDetails(this.props.post.id);
         })
     }
 
@@ -203,6 +208,39 @@ class App extends Component {
         })
     }
 
+    getCategoryPage = (theCategory) => {
+        let flag = false;
+        this.props.categories.map((category) => {
+            if(category.name === theCategory) {
+                flag = true;
+            }
+        })
+        if(flag) {
+            return (
+                <div className="full-height">
+                    <NavigationBar fetchCategories={this.fetchCategories}
+                            fetchPosts={this.fetchPosts}/>
+                    <HomePage fetchCategories={this.fetchCategories}
+                              fetchPosts={this.fetchPosts}
+                              orderPosts={this.orderPosts}
+                              getFormatCategory={this.getFormatCategory}
+                              changeCommentVoteScore={this.changeCommentVoteScore}
+                              changePostVoteScore={this.changePostVoteScore}/>
+                    <AddPostIcon onClick={this.props.shouldShowNewPostView} className="addPostButton"/>
+                    {
+                        this.props.popupsState.showNewPostView ?
+                        <NewPostView addNewPost={this.addNewPost}/>
+                        : null
+                    }
+                </div>
+            )
+        } else {
+            return (
+                <ErrorPage/>
+            )
+        }
+    }
+
     render() {
         return (
             <div className="full-height">
@@ -226,24 +264,11 @@ class App extends Component {
                         </div>
                     )}/>
                     <Route exact path="/:category" render={() => (
-                        <div className="full-height">
-                            <NavigationBar fetchCategories={this.fetchCategories}
-                                    fetchPosts={this.fetchPosts}/>
-                            <HomePage fetchCategories={this.fetchCategories}
-                                      fetchPosts={this.fetchPosts}
-                                      orderPosts={this.orderPosts}
-                                      getFormatCategory={this.getFormatCategory}
-                                      changeCommentVoteScore={this.changeCommentVoteScore}
-                                      changePostVoteScore={this.changePostVoteScore}/>
-                            <AddPostIcon onClick={this.props.shouldShowNewPostView} className="addPostButton"/>
-                            {
-                                this.props.popupsState.showNewPostView ?
-                                <NewPostView addNewPost={this.addNewPost}/>
-                                : null
-                            }
-                        </div>
+                        <div className="full-height">{
+                            this.getCategoryPage(this.getFormatCategory(this.props.location.pathname))
+                        }</div>
                     )}/>
-                    <Route path="/:category/:postID" render={() => (
+                    <Route exact path="/:category/:postID" render={() => (
                         <div className="full-height">
                             <TopBar deletePost={this.fetchDeletePost}/>
                             <PostPage fetchPostDetails={this.fetchPostDetails}
@@ -268,13 +293,16 @@ class App extends Component {
                             }
                         </div>
                     )}/>
+                    <Route path="*" render={() => (
+                        <ErrorPage/>
+                    )}/>
                 </Switch>
             </div>
         )
     }
 }
 
-const mapStateToProps = ({ appReducer, postsReducer, commentsReducer }) => ({
+const mapStateToProps = ({ appReducer, postsReducer, commentsReducer, categoriesReducer }) => ({
     defaultURL: appReducer.fetchOptions.defaultURL,
     headers: appReducer.fetchOptions.headers,
     postHeaders: appReducer.fetchOptions.postHeaders,
@@ -283,7 +311,8 @@ const mapStateToProps = ({ appReducer, postsReducer, commentsReducer }) => ({
     comments: commentsReducer.comments,
     comment: commentsReducer.comment,
     popupsState: appReducer.popupsState,
-    postsOrderMethod: appReducer.postsOrderMethod
+    postsOrderMethod: appReducer.postsOrderMethod,
+    categories: categoriesReducer.categories
 })
 
 const mapDispatchToProps = (dispatch) => ({
